@@ -5,13 +5,12 @@ const app = require('./app');
 
 const DB = process.env.MONGODB_URL.replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
 
-
 mongoose.connect(DB, {
   useNewUrlParser:true,
   useCreateIndex:true,
   useFindAndModify: false
 }).then(() => { 
-  console.log('DB Connection Successful')
+  console.log('DB Connection Successful!')
 })
 
 const port = process.env.PORT || 3000;
