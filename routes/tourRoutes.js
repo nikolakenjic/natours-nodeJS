@@ -6,6 +6,7 @@ const {
   getSingleTour,
   updateTour,
   deleteTour,
+  top5Cheap,
   // checkID,
   // checkBody,
 } = require('./../controllers/tourController');
@@ -13,6 +14,8 @@ const {
 // router.param('id', checkID);
 
 // Create checkBody middleware for input data and add to post crete tour
+// Top 5 cheap
+router.route('/top-5-cheap').get(top5Cheap, getAllTours);
 
 router.route('/').get(getAllTours).post(createTour);
 router.route('/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
