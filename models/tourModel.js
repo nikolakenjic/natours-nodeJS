@@ -52,9 +52,13 @@ const TourSchema = new mongoose.Schema({
     default: Date.now(),
   },
   startDates: [Date],
+  secretTour: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// DOCUMENT MIDDLEWARE: runs before .save() and .create()
+// DOCUMENT MIDDLEWARE: runs before .save() and .create() ***************************
 TourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -67,6 +71,18 @@ TourSchema.pre('save', function (next) {
 
 // TourSchema.post('save', function (doc, next) {
 //   console.log('Doc', doc);
+//   next();
+// });
+
+// QUERY MIDDLEWARE *****************************************************************
+// TourSchema.pre('find', function (next) {
+TourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+// TourSchema.post(/^find/, function (docs, next) {
+//   console.log('DOCS', docs);
 //   next();
 // });
 
