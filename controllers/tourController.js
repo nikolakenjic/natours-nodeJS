@@ -1,4 +1,5 @@
 const APIFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
 const Tour = require('./../models/tourModel');
 
 // Top 5 cheap tours
@@ -11,201 +12,252 @@ exports.top5Cheap = (req, res, next) => {
 };
 
 // Tours controllers
-exports.getAllTours = async (req, res) => {
-  try {
-    // BUILD QUERY
-    // // 1.Filtering
-    // const queryObj = { ...req.query };
-    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    // excludedFields.forEach((el) => delete queryObj[el]);
+exports.getAllTours = catchAsync(async (req, res, next) => {
+  // With catchAsync
+  // EXECUTE QUERY
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
 
-    // // 2.Advanced filtering
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  const tours = await features.query;
 
-    // let query = Tour.find(JSON.parse(queryStr));
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours: tours,
+    },
+  });
 
-    // // 3.Sorting
-    // if (req.query.sort) {
-    //   const sortBy = req.query.sort.split(',').join(' ');
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query = query.sort('-createdAt');
-    // }
+  // Without catchAsync
+  // try {
+  //   // BUILD QUERY
+  //   // // 1.Filtering
+  //   // const queryObj = { ...req.query };
+  //   // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+  //   // excludedFields.forEach((el) => delete queryObj[el]);
 
-    // // 4. Field limiting
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(',').join(' ');
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select('-__v');
-    // }
+  //   // // 2.Advanced filtering
+  //   // let queryStr = JSON.stringify(queryObj);
+  //   // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    // // 5.Pagination
-    // const page = req.query.page * 1 || 1;
-    // const limit = req.query.limit * 1 || 10;
-    // const skip = (page - 1) * limit;
+  //   // let query = Tour.find(JSON.parse(queryStr));
 
-    // query = query.skip(skip).limit(limit);
+  //   // // 3.Sorting
+  //   // if (req.query.sort) {
+  //   //   const sortBy = req.query.sort.split(',').join(' ');
+  //   //   query = query.sort(sortBy);
+  //   // } else {
+  //   //   query = query.sort('-createdAt');
+  //   // }
 
-    // if (req.query.page) {
-    //   const numTours = await Tour.countDocuments();
-    //   if (skip >= numTours) throw new Error('This page does not exist');
-    // }
+  //   // // 4. Field limiting
+  //   // if (req.query.fields) {
+  //   //   const fields = req.query.fields.split(',').join(' ');
+  //   //   query = query.select(fields);
+  //   // } else {
+  //   //   query = query.select('-__v');
+  //   // }
 
-    // EXECUTE QUERY
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+  //   // // 5.Pagination
+  //   // const page = req.query.page * 1 || 1;
+  //   // const limit = req.query.limit * 1 || 10;
+  //   // const skip = (page - 1) * limit;
 
-    const tours = await features.query;
+  //   // query = query.skip(skip).limit(limit);
 
-    // SEND RESPONSE
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: {
-        tours: tours,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  //   // if (req.query.page) {
+  //   //   const numTours = await Tour.countDocuments();
+  //   //   if (skip >= numTours) throw new Error('This page does not exist');
+  //   // }
 
-exports.createTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
+  //   // EXECUTE QUERY
+  //   const features = new APIFeatures(Tour.find(), req.query)
+  //     .filter()
+  //     .sort()
+  //     .limitFields()
+  //     .paginate();
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Invalid data sent!',
-    });
-  }
-};
+  //   const tours = await features.query;
 
-exports.getSingleTour = async (req, res) => {
-  try {
-    const tour = await Tour.findById(req.params.id);
+  //   // SEND RESPONSE
+  //   res.status(200).json({
+  //     status: 'success',
+  //     results: tours.length,
+  //     data: {
+  //       tours: tours,
+  //     },
+  //   });
+  // } catch (err) {
+  //   res.status(404).json({
+  //     status: 'fail',
+  //     message: err,
+  //   });
+  // }
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+exports.createTour = catchAsync(async (req, res, next) => {
+  // Without catchAsync
+  // try {
+  //   const newTour = await Tour.create(req.body);
 
-exports.updateTour = async (req, res) => {
-  try {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+  //   res.status(201).json({
+  //     status: 'success',
+  //     data: {
+  //       tour: newTour,
+  //     },
+  //   });
+  // } catch (err) {
+  //   res.status(400).json({
+  //     status: 'fail',
+  //     message: err,
+  //   });
+  // }
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  // With catchAsync
+  const newTour = await Tour.create(req.body);
 
-exports.deleteTour = async (req, res) => {
-  try {
-    await Tour.findByIdAndDelete(req.params.id);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      tour: newTour,
+    },
+  });
+});
 
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
+exports.getSingleTour = catchAsync(async (req, res, next) => {
+  // Without catchAsync
+  // try {
+  //   const tour = await Tour.findById(req.params.id);
 
-      message: err,
-    });
-  }
-};
+  //   res.status(200).json({
+  //     status: 'success',
+  //     data: {
+  //       tour,
+  //     },
+  //   });
+  // } catch (err) {
+  //   res.status(404).json({
+  //     status: 'fail',
+  //     message: err,
+  //   });
+  // }
 
-exports.getMonthlyPlan = async (req, res) => {
-  try {
-    const year = req.params.year * 1;
+  // With catchAsync
+  const tour = await Tour.findById(req.params.id);
 
-    const plan = await Tour.aggregate([
-      {
-        $unwind: '$startDates',
-      },
-      {
-        $match: {
-          startDates: {
-            $gte: new Date(`${year}-01-01`),
-            $lte: new Date(`${year}-12-31`),
-          },
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+});
+
+exports.updateTour = catchAsync(async (req, res, next) => {
+  // try {
+  //   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+  //     new: true,
+  //     runValidators: true,
+  //   });
+
+  //   res.status(200).json({
+  //     status: 'success',
+  //     data: {
+  //       tour,
+  //     },
+  //   });
+  // } catch (err) {
+  //   res.status(404).json({
+  //     status: 'fail',
+  //     message: err,
+  //   });
+  // }
+  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+});
+
+exports.deleteTour = catchAsync(async (req, res, next) => {
+  // try {
+  //   await Tour.findByIdAndDelete(req.params.id);
+
+  //   res.status(204).json({
+  //     status: 'success',
+  //     data: null,
+  //   });
+  // } catch (err) {
+  //   res.status(404).json({
+  //     status: 'fail',
+
+  //     message: err,
+  //   });
+  // }
+  await Tour.findByIdAndDelete(req.params.id);
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
+  const year = req.params.year * 1;
+
+  const plan = await Tour.aggregate([
+    {
+      $unwind: '$startDates',
+    },
+    {
+      $match: {
+        startDates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`),
         },
       },
-      {
-        $group: {
-          _id: { $month: '$startDates' },
-          numTourStarts: { $sum: 1 },
-          tours: {
-            $push: '$name',
-          },
+    },
+    {
+      $group: {
+        _id: { $month: '$startDates' },
+        numTourStarts: { $sum: 1 },
+        tours: {
+          $push: '$name',
         },
       },
-      {
-        $addFields: { month: '$_id' },
+    },
+    {
+      $addFields: { month: '$_id' },
+    },
+    {
+      $project: {
+        _id: 0,
       },
-      {
-        $project: {
-          _id: 0,
-        },
+    },
+    {
+      $sort: {
+        numTourStarts: -1,
       },
-      {
-        $sort: {
-          numTourStarts: -1,
-        },
-      },
-      {
-        $limit: 12,
-      },
-    ]);
+    },
+    {
+      $limit: 12,
+    },
+  ]);
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        plan,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-
-      message: err,
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    data: {
+      plan,
+    },
+  });
+});
