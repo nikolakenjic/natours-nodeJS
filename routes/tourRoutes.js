@@ -11,6 +11,7 @@ const {
   // checkID,
   // checkBody,
 } = require('./../controllers/tourController');
+const { protect } = require('../controllers/authController');
 
 // router.param('id', checkID);
 
@@ -19,7 +20,7 @@ const {
 router.route('/top-5-cheap').get(top5Cheap, getAllTours);
 router.route('/monthly-plan/:year').get(top5Cheap, getMonthlyPlan);
 
-router.route('/').get(getAllTours).post(createTour);
+router.route('/').get(protect, getAllTours).post(createTour);
 router.route('/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
 
 module.exports = router;
