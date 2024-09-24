@@ -1,3 +1,4 @@
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('./../models/userModel');
 
@@ -16,8 +17,25 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 
 exports.createUser = (req, res) => {
   res.status(500).json({
-    success: 'failed',
+    status: 'failed',
     message: 'Dont create user',
+  });
+};
+
+exports.updateMyProfile = (req, res, next) => {
+  // Create error of user POSTed password data
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new AppError(
+        'This route is not for password updates.Please use /updatePassword',
+        400,
+      ),
+    );
+  }
+
+  // Send response
+  res.status(200).json({
+    status: 'success',
   });
 };
 
