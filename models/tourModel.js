@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const User = require('./userModel');
 // const validator = require('validator');
 
 const TourSchema = new mongoose.Schema({
@@ -77,6 +78,34 @@ const TourSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Embedded data model *******************************
+  startLocation: {
+    // GeoJSON
+    type: {
+      type: String,
+      default: 'Point',
+      enum: ['Point'],
+    },
+    coordinates: [Number],
+    address: String,
+    description: String,
+  },
+  locations: [
+    {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+      day: Number,
+    },
+  ],
+  // Embedded
+  // guides: Array,
+  guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create() ***************************
@@ -84,6 +113,14 @@ TourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// // Embedded
+// TourSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+
+//   next();
+// });
 
 // TourSchema.pre('save', function (next) {
 //   console.log('Document saving...');
