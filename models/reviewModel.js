@@ -28,4 +28,20 @@ const ReviewSchema = new mongoose.Schema({
   },
 });
 
+// Populate ******************************************************
+ReviewSchema.pre(/^find/, function (next) {
+  this.populate([
+    {
+      path: 'tour',
+      select: '-__v',
+    },
+    {
+      path: 'user',
+      select: '-__v',
+    },
+  ]);
+
+  next();
+});
+
 module.exports = mongoose.model('Review', ReviewSchema);
