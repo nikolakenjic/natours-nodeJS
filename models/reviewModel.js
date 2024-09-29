@@ -33,11 +33,11 @@ ReviewSchema.pre(/^find/, function (next) {
   this.populate([
     {
       path: 'tour',
-      select: '-__v',
+      select: 'name',
     },
     {
       path: 'user',
-      select: '-__v',
+      select: 'name email',
     },
   ]);
 
