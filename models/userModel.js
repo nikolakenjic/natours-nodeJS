@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
   passwordResetExpires: Date,
   active: {
     type: Boolean,
-    default: false,
+    default: true,
     select: false,
   },
 });
@@ -69,7 +69,7 @@ UserSchema.pre('save', function (next) {
 });
 
 UserSchema.pre(/^find/, function (next) {
-  // This points to current query
+  // this points to the current query
   this.find({ active: { $ne: false } });
   next();
 });
@@ -111,6 +111,4 @@ UserSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);
