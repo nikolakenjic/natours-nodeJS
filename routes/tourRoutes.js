@@ -12,9 +12,20 @@ const {
   // checkBody,
 } = require('./../controllers/tourController');
 const { protect, restrictedTo } = require('../controllers/authController');
-const { createReview } = require('../controllers/reviewController');
+const reviewRouter = require('./../routes/reviewRoutes');
+// const { createReview } = require('../controllers/reviewController');
 
 // router.param('id', checkID);
+
+// // Nested routes for reviews
+// // POST /tour/123132/reviews --------------------- nested routes
+// // GET /tour/123132/reviews
+// // GET /tour/123132/reviews/1231das
+
+// router
+//   .route('/:tourId/reviews')
+//   .post(protect, restrictedTo('user'), createReview);
+router.use('/:tourId/reviews', reviewRouter);
 
 // Create checkBody middleware for input data and add to post crete tour
 // Top 5 cheap
@@ -27,15 +38,5 @@ router
   .get(getSingleTour)
   .patch(updateTour)
   .delete(protect, restrictedTo('admin', 'lead-guide'), deleteTour);
-3;
-
-// Nested routes for reviews
-// POST /tour/123132/reviews --------------------- nested routes
-// GET /tour/123132/reviews
-// GET /tour/123132/reviews/1231das
-
-router
-  .route('/:tourId/reviews')
-  .post(protect, restrictedTo('user'), createReview);
 
 module.exports = router;

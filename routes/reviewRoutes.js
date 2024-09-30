@@ -8,7 +8,8 @@ const {
 } = require('../controllers/reviewController');
 const { protect, restrictedTo } = require('../controllers/authController');
 
-const router = express.Router();
+// We add mergeParams if we have nested routes and want some /:id from another middleware
+const router = express.Router({ mergeParams: true });
 
 router.route('/').get(getAllReviews).post(protect, createReview);
 
