@@ -30,11 +30,16 @@ const ReviewSchema = new mongoose.Schema({
 
 // Populate ******************************************************
 ReviewSchema.pre(/^find/, function (next) {
+  // this.populate([
+  //   {
+  //     path: 'tour',
+  //     select: 'name',
+  //   },
+  //   {
+  //     path: 'user',
+  //     select: 'name email',
+  //   },
   this.populate([
-    {
-      path: 'tour',
-      select: 'name',
-    },
     {
       path: 'user',
       select: 'name email',
@@ -45,3 +50,7 @@ ReviewSchema.pre(/^find/, function (next) {
 });
 
 module.exports = mongoose.model('Review', ReviewSchema);
+
+// POST /tour/123132/reviews --------------------- nested routes
+// GET /tour/123132/reviews
+// GET /tour/123132/reviews/1231das

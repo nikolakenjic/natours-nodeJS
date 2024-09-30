@@ -12,6 +12,7 @@ const {
   // checkBody,
 } = require('./../controllers/tourController');
 const { protect, restrictedTo } = require('../controllers/authController');
+const { createReview } = require('../controllers/reviewController');
 
 // router.param('id', checkID);
 
@@ -26,5 +27,15 @@ router
   .get(getSingleTour)
   .patch(updateTour)
   .delete(protect, restrictedTo('admin', 'lead-guide'), deleteTour);
+3;
+
+// Nested routes for reviews
+// POST /tour/123132/reviews --------------------- nested routes
+// GET /tour/123132/reviews
+// GET /tour/123132/reviews/1231das
+
+router
+  .route('/:tourId/reviews')
+  .post(protect, restrictedTo('user'), createReview);
 
 module.exports = router;
