@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('./../models/userModel');
+const factory = require('./../controllers/handleFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -83,9 +84,4 @@ exports.updateUser = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    success: 'failed',
-    message: 'Dont delete',
-  });
-};
+exports.deleteUser = factory.deleteOne(User);
