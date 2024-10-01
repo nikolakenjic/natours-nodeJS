@@ -26,12 +26,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'Dont create user',
-  });
-};
+exports.createUser = factory.createOne(User);
 
 exports.updateMyProfile = catchAsync(async (req, res, next) => {
   // Create error of user POSTed password data
@@ -77,11 +72,6 @@ exports.getSingleUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    success: 'failed',
-    message: 'Dont have update user',
-  });
-};
+exports.updateUser = factory.updateOne(User);
 
 exports.deleteUser = factory.deleteOne(User);
