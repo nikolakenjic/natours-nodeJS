@@ -1,17 +1,48 @@
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-exports.deleteOne = (Model) =>
+exports.getAllModel = (Model) =>
   catchAsync(async (req, res, next) => {
-    const tour = await Model.findByIdAndDelete(req.params.id);
+    // Nested routes GET endpoint for REVIEW (Hack)
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
 
-    if (!tour) {
-      return next(new AppError('No tour with that ID', 404));
+    // EXECUTE QUERY
+    const features = new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const doc = await features.query;
+
+    // SEND RESPONSE
+    res.status(200).json({
+      status: 'success',
+      results: doc.length,
+      data: {
+        doc: doc,
+      },
+    });
+  });
+
+exports.getSingleModel = (Model, popOptions) =>
+  catchAsync(async (req, res, next) => {
+    let query = Model.findById(req.params.id);
+    if (popOptions) query = query.populate(popOptions);
+
+    const doc = await query;
+
+    if (!doc) {
+      return next(new AppError('No document with that ID', 404));
     }
 
-    res.status(204).json({
+    res.status(200).json({
       status: 'success',
-      data: null,
+      data: {
+        data: doc,
+      },
     });
   });
 
@@ -43,6 +74,20 @@ exports.updateOne = (Model) =>
       data: {
         data: doc,
       },
+    });
+  });
+
+exports.deleteOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const tour = await Model.findByIdAndDelete(req.params.id);
+
+    if (!tour) {
+      return next(new AppError('No tour with that ID', 404));
+    }
+
+    res.status(204).json({
+      status: 'success',
+      data: null,
     });
   });
 

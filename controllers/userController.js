@@ -13,21 +13,7 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users: users,
-    },
-  });
-});
-
-exports.createUser = factory.createOne(User);
-
+// FOR USERS ACTUALLY **********************************************************************
 exports.updateMyProfile = catchAsync(async (req, res, next) => {
   // Create error of user POSTed password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -65,13 +51,13 @@ exports.deleteMyProfile = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getSingleUser = (req, res) => {
-  res.status(500).json({
-    success: 'failed',
-    message: 'Dont have single user',
-  });
-};
+exports.getAllUsers = factory.getAllModel(User);
 
+exports.getSingleUser = factory.getSingleModel(User);
+
+exports.createUser = factory.createOne(User);
+
+// Do NOT update passwords with this!s
 exports.updateUser = factory.updateOne(User);
 
 exports.deleteUser = factory.deleteOne(User);
