@@ -30,13 +30,18 @@ router.use('/:tourId/reviews', reviewRouter);
 // Create checkBody middleware for input data and add to post crete tour
 // Top 5 cheap
 router.route('/top-5-cheap').get(top5Cheap, getAllTours);
-router.route('/monthly-plan/:year').get(top5Cheap, getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(protect, restrictedTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
 
-router.route('/').get(protect, getAllTours).post(createTour);
+router
+  .route('/')
+  .get(getAllTours)
+  .post(protect, restrictedTo('admin', 'lead-guide'), createTour);
 router
   .route('/:id')
   .get(getSingleTour)
-  .patch(updateTour)
+  .patch(protect, restrictedTo('admin', 'lead-guide'), updateTour)
   .delete(protect, restrictedTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
