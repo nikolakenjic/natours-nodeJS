@@ -80,7 +80,6 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('You must be logged in to access this route.', 401),
     );
   }
-  console.log('Token', token);
 
   //   2. Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);

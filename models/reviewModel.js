@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-// const Tour = require('./tourModel')
+const Tour = require('./tourModel');
 
 const ReviewSchema = new mongoose.Schema({
   review: {
@@ -49,8 +49,52 @@ ReviewSchema.pre(/^find/, function (next) {
   next();
 });
 
-module.exports = mongoose.model('Review', ReviewSchema);
+// Calculate Average Ratings
+// we must use static methods
+ReviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+  // console.log(stats);
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
 
-// POST /tour/123132/reviews --------------------- nested routes
-// GET /tour/123132/reviews
-// GET /tour/123132/reviews/1231das
+// Call avgRatings
+ReviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+// findByIdAndUpdate
+// findByIdAndDelete
+ReviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.r = await this.findOne();
+  // console.log(this.r);
+  next();
+});
+// Must use pre and post to send to the another middleware
+ReviewSchema.post(/^findOneAnd/, async function () {
+  // await this.findOne(); does NOT work here, query has already executed
+  await this.r.constructor.calcAverageRatings(this.r.tour);
+});
+
+module.exports = mongoose.model('Review', ReviewSchema);
