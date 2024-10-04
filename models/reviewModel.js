@@ -28,6 +28,8 @@ const ReviewSchema = new mongoose.Schema({
   },
 });
 
+ReviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // Populate ******************************************************
 ReviewSchema.pre(/^find/, function (next) {
   // this.populate([

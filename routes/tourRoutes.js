@@ -8,6 +8,7 @@ const {
   deleteTour,
   top5Cheap,
   getMonthlyPlan,
+  getToursWithin,
   // checkID,
   // checkBody,
 } = require('./../controllers/tourController');
@@ -33,6 +34,13 @@ router.route('/top-5-cheap').get(top5Cheap, getAllTours);
 router
   .route('/monthly-plan/:year')
   .get(protect, restrictedTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
+
+// Geospatial Queries
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
+// /tours-within?distance=233&center=-40,45&unit=mi
+// /tours-within/233/center/-40,45/unit/mi
 
 router
   .route('/')
